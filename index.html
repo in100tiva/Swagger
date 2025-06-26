@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aprendendo Swagger com JavaScript</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+          --background: #f0f8ff;
+          --foreground: #374151;
+          --card: #ffffff;
+          --card-foreground: #374151;
+          --popover: #ffffff;
+          --popover-foreground: #374151;
+          --primary: #22c55e;
+          --primary-foreground: #ffffff;
+          --secondary: #e0f2fe;
+          --secondary-foreground: #4b5563;
+          --muted: #f3f4f6;
+          --muted-foreground: #6b7280;
+          --accent: #d1fae5;
+          --accent-foreground: #374151;
+          --destructive: #ef4444;
+          --destructive-foreground: #ffffff;
+          --border: #e5e7eb;
+          --input: #e5e7eb;
+          --ring: #22c55e;
+          --chart-1: #22c55e;
+          --chart-2: #10b981;
+          --chart-3: #059669;
+          --chart-4: #047857;
+          --chart-5: #065f46;
+          --sidebar: #e0f2fe;
+          --sidebar-foreground: #374151;
+          --sidebar-primary: #22c55e;
+          --sidebar-primary-foreground: #ffffff;
+          --sidebar-accent: #d1fae5;
+          --sidebar-accent-foreground: #374151;
+          --sidebar-border: #e5e7eb;
+          --sidebar-ring: #22c55e;
+          --font-sans: DM Sans, sans-serif;
+          --font-serif: Lora, serif;
+          --font-mono: IBM Plex Mono, monospace;
+          --radius: 0.5rem;
+        }
+
+        .dark {
+          --background: #0f172a;
+          --foreground: #d1d5db;
+          --card: #1e293b;
+          --card-foreground: #d1d5db;
+          --popover: #1e293b;
+          --popover-foreground: #d1d5db;
+          --primary: #34d399;
+          --primary-foreground: #0f172a;
+          --secondary: #2d3748;
+          --secondary-foreground: #a1a1aa;
+          --muted: #1e293b;
+          --muted-foreground: #6b7280;
+          --accent: #374151;
+          --accent-foreground: #a1a1aa;
+          --destructive: #ef4444;
+          --destructive-foreground: #0f172a;
+          --border: #4b5563;
+          --input: #4b5563;
+          --ring: #34d399;
+          --chart-1: #34d399;
+          --chart-2: #2dd4bf;
+          --chart-3: #22c55e;
+          --chart-4: #10b981;
+          --chart-5: #059669;
+          --sidebar: #1e293b;
+          --sidebar-foreground: #d1d5db;
+          --sidebar-primary: #34d399;
+          --sidebar-primary-foreground: #0f172a;
+          --sidebar-accent: #374151;
+          --sidebar-accent-foreground: #a1a1aa;
+          --sidebar-border: #4b5563;
+          --sidebar-ring: #34d399;
+        }
+
+        body { 
+            font-family: var(--font-sans, 'DM Sans', sans-serif); 
+            background-color: var(--background);
+            color: var(--foreground);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        .code-block { 
+            background: var(--muted); 
+            color: var(--muted-foreground); 
+            border: 1px solid var(--border);
+        }
+        
+        .card { 
+            background: var(--card); 
+            color: var(--card-foreground);
+            border: 1px solid var(--border);
+        }
+        
+        .primary-btn { 
+            background: var(--primary); 
+            color: var(--primary-foreground); 
+        }
+        
+        .primary-btn:hover { 
+            background: var(--chart-2); 
+        }
+        
+        .secondary-btn { 
+            background: var(--secondary); 
+            color: var(--secondary-foreground); 
+        }
+        
+        .accent-bg { 
+            background: var(--accent); 
+            color: var(--accent-foreground); 
+        }
+        
+        .muted-bg { 
+            background: var(--muted); 
+            color: var(--muted-foreground); 
+        }
+        
+        .border-custom { 
+            border-color: var(--border); 
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--foreground);
+            padding: 8px 12px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .theme-toggle:hover {
+            background: var(--accent);
+        }
+    </style>
+</head>
+<body class="dark">
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <span id="theme-icon">🌙</span> Tema
+    </button>
+
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold mb-4" style="color: var(--primary)">🚀 Aprendendo Swagger com JavaScript</h1>
+            <p class="text-xl" style="color: var(--muted-foreground)">Guia interativo e didático para dominar APIs com Swagger</p>
+            <div class="mt-6 accent-bg p-4 rounded-lg">
+                <p>👋 Bem-vindo! Esta página vai te ensinar Swagger de forma prática e interativa.</p>
+            </div>
+        </header>
+
+        <!-- Progress Bar -->
+        <div class="mb-8">
+            <div class="flex justify-between text-sm mb-2" style="color: var(--muted-foreground)">
+                <span>Progresso do Aprendizado</span>
+                <span id="progress-text">0% Completo</span>
+            </div>
+            <div class="w-full rounded-full h-3" style="background: var(--muted)">
+                <div id="progress-bar" class="h-3 rounded-full transition-all duration-300" style="width: 0%; background: var(--primary)"></div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="mb-8 card rounded-lg p-4" style="box-shadow: var(--shadow-lg)">
+            <h3 class="font-semibold mb-3">📚 Índice do Conteúdo</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <button onclick="scrollToSection('intro')" class="nav-btn text-left p-2 rounded transition hover:bg-accent hover:text-accent-foreground" style="border: 1px solid var(--border)">1. Introdução</button>
+                <button onclick="scrollToSection('conceitos')" class="nav-btn text-left p-2 rounded transition hover:bg-accent hover:text-accent-foreground" style="border: 1px solid var(--border)">2. Conceitos</button>
+                <button onclick="scrollToSection('pratica')" class="nav-btn text-left p-2 rounded transition hover:bg-accent hover:text-accent-foreground" style="border: 1px solid var(--border)">3. Prática</button>
+                <button onclick="scrollToSection('exercicios')" class="nav-btn text-left p-2 rounded transition hover:bg-accent hover:text-accent-foreground" style="border: 1px solid var(--border)">4. Exercícios</button>
+            </div>
+        </nav>
+
+        <!-- Section 1: Introdução -->
+        <section id="intro" class="section mb-12 card rounded-lg p-6" style="box-shadow: var(--shadow-lg)">
+            <h2 class="text-2xl font-bold mb-4" style="color: var(--primary)">🎯 1. O que é Swagger?</h2>
+            
+            <div class="space-y-4">
+                <p class="text-lg">Swagger é um conjunto de ferramentas para <strong>documentar, testar e consumir APIs REST</strong>.</p>
+                
+                <div class="accent-bg border-l-4 p-4" style="border-left-color: var(--primary)">
+                    <h4 class="font-semibold">💡 Por que usar Swagger?</h4>
+                    <ul class="list-disc ml-6 mt-2">
+                        <li>Documentação automática da API</li>
+                        <li>Interface visual para testar endpoints</li>
+                        <li>Geração de código cliente</li>
+                        <li>Padronização da documentação</li>
+                    </ul>
+                </div>
+
+                <div class="interactive-demo muted-bg p-4 rounded-lg">
+                    <h4 class="font-semibold mb-3">🎮 Demo Interativo: Swagger vs Documentação Tradicional</h4>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="card p-4 rounded">
+                            <h5 class="font-medium mb-2" style="color: var(--destructive)">❌ Documentação Tradicional</h5>
+                            <div class="text-sm" style="color: var(--muted-foreground)">
+                                <p>POST /users</p>
+                                <p>Cria um novo usuário...</p>
+                                <p class="text-xs mt-2">Informações limitadas e estáticas</p>
+                            </div>
+                        </div>
+                        <div class="card p-4 rounded">
+                            <h5 class="font-medium mb-2" style="color: var(--primary)">✅ Com Swagger</h5>
+                            <button onclick="showSwaggerDemo()" class="primary-btn px-3 py-1 rounded text-sm transition">
+                                Ver Exemplo Swagger
+                            </button>
+                            <p class="text-xs mt-2 text-gray-600">Interativo, testável e detalhado</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button onclick="completeSection('intro')" class="complete-btn mt-4 primary-btn px-4 py-2 rounded transition">
+                ✓ Completar Introdução
+            </button>
+        </section>
+
+        <!-- Section 2: Conceitos Fundamentais -->
+        <section id="conceitos" class="section mb-12 card rounded-lg p-6" style="box-shadow: var(--shadow-lg)">
+            <h2 class="text-2xl font-bold mb-4" style="color: var(--chart-2)">📖 2. Conceitos Fundamentais</h2>
+            
+            <div class="space-y-6">
+                <div class="concept-card muted-bg p-4 rounded-lg">
+                    <h4 class="font-semibold mb-2">🔧 OpenAPI Specification</h4>
+                    <p class="mb-3">É o formato padrão para descrever APIs REST. Antes era chamado de "Swagger Specification".</p>
+                    
+                    <div class="code-block p-4 rounded overflow-x-auto">
+                        <pre class="text-sm"><code>{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Minha API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/users": {
+      "get": {
+        "summary": "Lista usuários"
+      }
+    }
+  }
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="concept-card muted-bg p-4 rounded-lg">
+                    <h4 class="font-semibold mb-2">🎯 Componentes Principais</h4>
+                    <div class="grid md:grid-cols-3 gap-4 mt-3">
+                        <div class="card p-3 rounded" style="box-shadow: var(--shadow)">
+                            <h5 class="font-medium" style="color: var(--chart-1)">Paths</h5>
+                            <p class="text-sm mt-1" style="color: var(--muted-foreground)">Endpoints da API (/users, /products)</p>
+                        </div>
+                        <div class="card p-3 rounded" style="box-shadow: var(--shadow)">
+                            <h5 class="font-medium" style="color: var(--chart-2)">Schemas</h5>
+                            <p class="text-sm mt-1" style="color: var(--muted-foreground)">Estrutura dos dados (User, Product)</p>
+                        </div>
+                        <div class="card p-3 rounded" style="box-shadow: var(--shadow)">
+                            <h5 class="font-medium" style="color: var(--chart-3)">Parameters</h5>
+                            <p class="text-sm mt-1" style="color: var(--muted-foreground)">Query, path, header parameters</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interactive-exercise accent-bg p-4 rounded-lg">
+                    <h4 class="font-semibold mb-3">🎯 Exercício: Identifique os Componentes</h4>
+                    <p class="mb-3">Clique nos elementos do código Swagger abaixo:</p>
+                    
+                    <div class="code-block p-4 rounded">
+                        <pre class="text-sm"><code>{
+  <span class="clickable-code cursor-pointer hover:bg-yellow-500 hover:text-black p-1 rounded" data-type="info">"info": {
+    "title": "Pet Store API"
+  }</span>,
+  <span class="clickable-code cursor-pointer hover:bg-yellow-500 hover:text-black p-1 rounded" data-type="paths">"paths": {
+    "/pets": {</span>
+      <span class="clickable-code cursor-pointer hover:bg-yellow-500 hover:text-black p-1 rounded" data-type="method">"get": {
+        "summary": "List pets"
+      }</span>
+    }
+  }
+}</code></pre>
+                    </div>
+                    
+                    <div id="code-feedback" class="mt-3 p-3 rounded hidden">
+                        <!-- Feedback aparece aqui -->
+                    </div>
+                </div>
+            </div>
+            
+            <button onclick="completeSection('conceitos')" class="complete-btn mt-4 px-4 py-2 rounded transition" style="background: var(--chart-2); color: var(--primary-foreground)">
+                ✓ Completar Conceitos
+            </button>
+        </section>
+
+        <!-- Section 3: Prática com JavaScript -->
+        <section id="pratica" class="section mb-12 card rounded-lg p-6" style="box-shadow: var(--shadow-lg)">
+            <h2 class="text-2xl font-bold mb-4" style="color: var(--chart-3)">💻 3. Prática com JavaScript</h2>
+            
+            <div class="space-y-6">
+                <div class="accent-bg p-4 rounded-lg">
+                    <h4 class="font-semibold mb-3">🛠️ Como usar Swagger com JavaScript</h4>
+                    <p class="mb-3">Vamos aprender 3 formas principais:</p>
+                    
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <div class="card p-3 rounded" style="box-shadow: var(--shadow)">
+                            <h5 class="font-medium" style="color: var(--chart-1)">1. Swagger UI</h5>
+                            <p class="text-sm mt-1" style="color: var(--muted-foreground)">Interface visual para testar APIs</p>
+                        </div>
+                        <div class="card p-3 rounded" style="box-shadow: var(--shadow)">
+                            <h5 class="font-medium" style="color: var(--chart-2)">2. Swagger Codegen</h5>
+                            <p class="text-sm mt-1" style="color: var(--muted-foreground)">Gerar código cliente automaticamente</p>
+                        </div>
+                        <div class="card p-3 rounded" style="box-shadow: var(--shadow)">
+                            <h5 class="font-medium" style="color: var(--chart-3)">3. Swagger Parser</h5>
+                            <p class="text-sm mt-1" style="color: var(--muted-foreground)">Validar e processar specs Swagger</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Code Editor -->
+                <div class="live-editor muted-bg p-4 rounded-lg">
+                    <h4 class="font-semibold mb-3">🔥 Editor de Código ao Vivo</h4>
+                    <p class="text-sm mb-3" style="color: var(--muted-foreground)">Edite o código abaixo e veja o resultado em tempo real:</p>
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">JavaScript Code:</label>
+                            <textarea id="code-editor" class="w-full h-40 p-3 rounded code-block text-sm font-mono border-custom" placeholder="// Escreva seu código aqui
+const swaggerSpec = {
+  openapi: '3.0.0',
+  info: {
+    title: 'Minha API',
+    version: '1.0.0'
+  }
+};
+
+console.log('Swagger Spec:', swaggerSpec.info.title);">// Exemplo: Criando uma spec Swagger
+const swaggerSpec = {
+  openapi: '3.0.0',
+  info: {
+    title: 'Minha API de Pets',
+    version: '1.0.0',
+    description: 'API para gerenciar pets'
+  },
+  paths: {
+    '/pets': {
+      get: {
+        summary: 'Lista todos os pets',
+        responses: {
+          200: {
+            description: 'Lista de pets'
+          }
+        }
+      }
+    }
+  }
+};
+
+// Acessando informações da spec
+console.log('Título:', swaggerSpec.info.title);
+console.log('Endpoints:', Object.keys(swaggerSpec.paths));</textarea>
+                            <button onclick="runCode()" class="mt-2 px-4 py-2 rounded transition" style="background: var(--chart-3); color: var(--primary-foreground)">
+                                ▶️ Executar Código
+                            </button>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Resultado:</label>
+                            <div id="code-output" class="w-full h-40 p-3 rounded font-mono text-sm overflow-y-auto border-custom" style="background: var(--muted); color: var(--primary)">
+                                <div style="color: var(--muted-foreground)">// O resultado aparecerá aqui...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API Simulator -->
+                <div class="api-simulator accent-bg p-4 rounded-lg">
+                    <h4 class="font-semibold mb-3">🌐 Simulador de API</h4>
+                    <p class="text-sm mb-4" style="color: var(--muted-foreground)">Teste diferentes endpoints de uma API simulada:</p>
+                    
+                    <div class="space-y-4">
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="callAPI('GET', '/users')" class="px-3 py-1 rounded text-sm transition" style="background: var(--chart-1); color: var(--primary-foreground)">
+                                GET /users
+                            </button>
+                            <button onclick="callAPI('POST', '/users')" class="px-3 py-1 rounded text-sm transition" style="background: var(--chart-2); color: var(--primary-foreground)">
+                                POST /users
+                            </button>
+                            <button onclick="callAPI('GET', '/users/1')" class="px-3 py-1 rounded text-sm transition" style="background: var(--chart-3); color: var(--primary-foreground)">
+                                GET /users/1
+                            </button>
+                            <button onclick="callAPI('DELETE', '/users/1')" class="px-3 py-1 rounded text-sm transition" style="background: var(--destructive); color: var(--destructive-foreground)">
+                                DELETE /users/1
+                            </button>
+                        </div>
+                        
+                        <div id="api-response" class="card p-3 rounded min-h-24">
+                            <div class="text-sm" style="color: var(--muted-foreground)">Clique em um endpoint acima para ver a resposta...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button onclick="completeSection('pratica')" class="complete-btn mt-4 px-4 py-2 rounded transition" style="background: var(--chart-3); color: var(--primary-foreground)">
+                ✓ Completar Prática
+            </button>
+        </section>
+
+        <!-- Section 4: Exercícios Interativos -->
+        <section id="exercicios" class="section mb-12 card rounded-lg p-6" style="box-shadow: var(--shadow-lg)">
+            <h2 class="text-2xl font-bold mb-4" style="color: var(--chart-4)">🎯 4. Exercícios Interativos</h2>
+            
+            <div class="space-y-6">
+                <!-- Exercise 1 -->
+                <div class="exercise accent-bg p-4 rounded-lg">
+                    <h4 class="font-semibold mb-3">📝 Exercício 1: Complete a Spec Swagger</h4>
+                    <p class="mb-3">Complete o código Swagger abaixo adicionando um endpoint POST:</p>
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <textarea id="exercise1-code" class="w-full h-32 p-3 rounded code-block text-sm font-mono border-custom">{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Books API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/books": {
+      "get": {
+        "summary": "Get all books"
+      }
+      // ADICIONE UM ENDPOINT POST AQUI
+    }
+  }
+}</textarea>
+                            <button onclick="checkExercise1()" class="mt-2 px-4 py-2 rounded transition" style="background: var(--chart-4); color: var(--primary-foreground)">
+                                ✓ Verificar Resposta
+                            </button>
+                        </div>
+                        
+                        <div>
+                            <div class="card p-3 rounded h-32">
+                                <h5 class="font-medium mb-2">💡 Dica:</h5>
+                                <p class="text-sm" style="color: var(--muted-foreground)">Um endpoint POST deve incluir:</p>
+                                <ul class="text-sm list-disc ml-4 mt-1" style="color: var(--muted-foreground)">
+                                    <li>Método "post"</li>
+                                    <li>Summary descritivo</li>
+                                    <li>Resposta 201 (Created)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="exercise1-feedback" class="mt-3 p-3 rounded hidden">
+                        <!-- Feedback aparece aqui -->
+                    </div>
+                </div>
+
+                <!-- Exercise 2 -->
+                <div class="exercise muted-bg p-4 rounded-lg">
+                    <h4 class="font-semibold mb-3">🎮 Exercício 2: Quiz Swagger</h4>
+                    <div id="quiz-container">
+                        <div class="quiz-question mb-4">
+                            <p class="font-medium mb-3">Qual é a versão atual da OpenAPI Specification mais utilizada?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="radio" name="quiz1" value="2.0" class="mr-2">
+                                    <span>2.0</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="quiz1" value="3.0" class="mr-2">
+                                    <span>3.0</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="quiz1" value="4.0" class="mr-2">
+                                    <span>4.0</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button onclick="checkQuiz()" class="px-4 py-2 rounded transition" style="background: var(--chart-2); color: var(--primary-foreground)">
+                            Verificar Resposta
+                        </button>
+                        
+                        <div id="quiz-feedback" class="mt-3 p-3 rounded hidden">
+                            <!-- Feedback aparece aqui -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Final Challenge -->
+                <div class="challenge p-6 rounded-lg" style="background: linear-gradient(to right, var(--chart-3), var(--chart-4)); color: var(--primary-foreground)">
+                    <h4 class="font-semibold mb-3 text-xl">🏆 Desafio Final</h4>
+                    <p class="mb-4">Crie uma especificação Swagger completa para uma API de E-commerce!</p>
+                    
+                    <div class="p-4 rounded mb-4" style="background: rgba(255,255,255,0.1)">
+                        <h5 class="font-medium mb-2">Requisitos:</h5>
+                        <ul class="list-disc ml-4 text-sm">
+                            <li>Endpoints para produtos: GET, POST, PUT, DELETE</li>
+                            <li>Endpoint para buscar produtos por categoria</li>
+                            <li>Schema para o objeto Product</li>
+                            <li>Respostas de erro apropriadas</li>
+                        </ul>
+                    </div>
+                    
+                    <button onclick="startFinalChallenge()" class="px-6 py-2 rounded font-medium transition" style="background: var(--card); color: var(--chart-3); border: 1px solid var(--border)">
+                        🚀 Aceitar Desafio
+                    </button>
+                </div>
+            </div>
+            
+            <button onclick="completeSection('exercicios')" class="complete-btn mt-4 px-4 py-2 rounded transition" style="background: var(--chart-4); color: var(--primary-foreground)">
+                ✓ Completar Exercícios
+            </button>
+        </section>
+
+        <!-- Completion Certificate -->
+        <div id="certificate" class="hidden p-8 rounded-lg text-center" style="background: linear-gradient(to right, var(--chart-1), var(--chart-2)); color: var(--primary-foreground)">
+            <h2 class="text-3xl font-bold mb-4">🎉 Parabéns!</h2>
+            <p class="text-xl mb-4">Você completou o curso de Swagger com JavaScript!</p>
+            <div class="p-4 rounded mb-4" style="background: rgba(255,255,255,0.15)">
+                <p class="text-lg font-medium">Certificado de Conclusão</p>
+                <p>Luan Oliveira dos santos</p>
+                <p class="text-sm">Concluído em: <span id="completion-date"></span></p>
+            </div>
+            <p class="text-sm">Continue praticando e explorando APIs com Swagger!</p>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center" style="color: var(--muted-foreground)">
+            <p>🚀 Continue sua jornada de desenvolvimento com APIs!</p>
+            <div class="mt-4 space-x-4">
+                <a href="https://swagger.io/docs/" target="_blank" class="hover:underline" style="color: var(--primary)">Documentação Oficial</a>
+                <a href="https://editor.swagger.io/" target="_blank" class="hover:underline" style="color: var(--primary)">Swagger Editor</a>
+                <a href="https://petstore.swagger.io/" target="_blank" class="hover:underline" style="color: var(--primary)">Exemplo Pet Store</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Estado da aplicação
+        let completedSections = new Set();
+        let totalSections = 4;
+
+        // Funções de navegação
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        }
+
+        // Atualizar barra de progresso
+        function updateProgress() {
+            const progress = (completedSections.size / totalSections) * 100;
+            document.getElementById('progress-bar').style.width = progress + '%';
+            document.getElementById('progress-text').textContent = Math.round(progress) + '% Completo';
+            
+            if (progress === 100) {
+                showCertificate();
+            }
+        }
+
+        // Completar seção
+        function completeSection(sectionId) {
+            completedSections.add(sectionId);
+            updateProgress();
+            
+            // Marcar botão como completado
+            const button = event.target;
+            button.textContent = '✅ Concluído!';
+            button.disabled = true;
+            button.classList.add('bg-gray-400', 'cursor-not-allowed');
+            button.classList.remove('hover:bg-blue-700', 'hover:bg-green-700', 'hover:bg-purple-700', 'hover:bg-red-700');
+        }
+
+        // Demo do Swagger
+        function showSwaggerDemo() {
+            const demoHtml = `
+                <div class="bg-white border rounded p-4 mt-3">
+                    <h6 class="font-medium text-green-600 mb-2">Exemplo Swagger UI:</h6>
+                    <div class="text-sm space-y-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">GET</span>
+                            <span>/users</span>
+                            <button class="bg-blue-500 text-white px-2 py-1 rounded text-xs">Try it out</button>
+                        </div>
+                        <div class="bg-gray-50 p-2 rounded text-xs">
+                            <p><strong>Summary:</strong> Get all users</p>
+                            <p><strong>Parameters:</strong> page (query), limit (query)</p>
+                            <p><strong>Responses:</strong> 200 (Success), 400 (Bad Request)</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const demoContainer = event.target.parentElement;
+            if (!demoContainer.querySelector('.bg-white')) {
+                demoContainer.insertAdjacentHTML('beforeend', demoHtml);
+            }
+        }
+
+        // Exercício de código clicável
+        document.querySelectorAll('.clickable-code').forEach(element => {
+            element.addEventListener('click', function() {
+                const type = this.dataset.type;
+                const feedback = document.getElementById('code-feedback');
+                
+                let message = '';
+                let className = '';
+                
+                switch(type) {
+                    case 'info':
+                        message = '✅ Correto! Este é o objeto "info" que contém metadados da API como título e versão.';
+                        className = 'bg-green-100 text-green-800';
+                        break;
+                    case 'paths':
+                        message = '✅ Perfeito! Este é o objeto "paths" que define todos os endpoints da API.';
+                        className = 'bg-green-100 text-green-800';
+                        break;
+                    case 'method':
+                        message = '✅ Excelente! Este é um método HTTP (GET) que define uma operação específica.';
+                        className = 'bg-green-100 text-green-800';
+                        break;
+                }
+                
+                feedback.className = `mt-3 p-3 rounded ${className}`;
+                feedback.textContent = message;
+                feedback.classList.remove('hidden');
+            });
+        });
+
+        // Editor de código ao vivo
+        function runCode() {
+            const code = document.getElementById('code-editor').value;
+            const output = document.getElementById('code-output');
+            
+            try {
+                // Capturar console.log
+                const logs = [];
+                const originalLog = console.log;
+                console.log = function(...args) {
+                    logs.push(args.join(' '));
+                };
+                
+                // Executar código
+                eval(code);
+                
+                // Restaurar console.log
+                console.log = originalLog;
+                
+                // Mostrar resultado
+                output.innerHTML = logs.map(log => `<div style="color: var(--primary)">${log}</div>`).join('');
+                
+            } catch (error) {
+                output.innerHTML = `<div style="color: var(--destructive)">Erro: ${error.message}</div>`;
+            }
+        }
+
+        // Simulador de API
+        function callAPI(method, endpoint) {
+            const response = document.getElementById('api-response');
+            
+            // Simular diferentes respostas
+            const mockResponses = {
+                'GET /users': {
+                    status: 200,
+                    data: [
+                        { id: 1, name: 'João', email: 'joao@email.com' },
+                        { id: 2, name: 'Maria', email: 'maria@email.com' }
+                    ]
+                },
+                'POST /users': {
+                    status: 201,
+                    data: { id: 3, name: 'Novo Usuário', email: 'novo@email.com' }
+                },
+                'GET /users/1': {
+                    status: 200,
+                    data: { id: 1, name: 'João', email: 'joao@email.com', created_at: '2023-01-01' }
+                },
+                'DELETE /users/1': {
+                    status: 204,
+                    data: null
+                }
+            };
+            
+            const key = `${method} ${endpoint}`;
+            const mockResponse = mockResponses[key];
+            
+            response.innerHTML = `
+                <div class="flex justify-between items-center mb-2">
+                    <span class="font-medium">${method} ${endpoint}</span>
+                    <span class="px-2 py-1 rounded text-sm" style="background: ${mockResponse.status < 300 ? 'var(--chart-1)' : 'var(--destructive)'}; color: var(--primary-foreground)">
+                        ${mockResponse.status}
+                    </span>
+                </div>
+                <pre class="p-2 rounded text-sm overflow-x-auto" style="background: var(--muted); color: var(--foreground)"><code>${JSON.stringify(mockResponse.data, null, 2)}</code></pre>
+            `;
+        }
+
+        // Exercício 1
+        function checkExercise1() {
+            const code = document.getElementById('exercise1-code').value;
+            const feedback = document.getElementById('exercise1-feedback');
+            
+            const hasPost = code.includes('"post"') || code.includes("'post'");
+            const hasSummary = code.includes('summary') && hasPost;
+            const hasResponse = code.includes('201') || code.includes('200');
+            
+            if (hasPost && hasSummary && hasResponse) {
+                feedback.className = 'mt-3 p-3 rounded';
+                feedback.style.background = 'var(--chart-1)';
+                feedback.style.color = 'var(--primary-foreground)';
+                feedback.textContent = '🎉 Excelente! Você adicionou corretamente um endpoint POST com summary e resposta!';
+            } else {
+                feedback.className = 'mt-3 p-3 rounded';
+                feedback.style.background = 'var(--accent)';
+                feedback.style.color = 'var(--accent-foreground)';
+                let hints = ['💡 Dicas para melhorar:'];
+                if (!hasPost) hints.push('- Adicione o método "post"');
+                if (!hasSummary) hints.push('- Inclua um "summary" descritivo');
+                if (!hasResponse) hints.push('- Adicione uma resposta (201 ou 200)');
+                feedback.textContent = hints.join('\n');
+            }
+            
+            feedback.classList.remove('hidden');
+        }
+
+        // Quiz
+        function checkQuiz() {
+            const selected = document.querySelector('input[name="quiz1"]:checked');
+            const feedback = document.getElementById('quiz-feedback');
+            
+            if (!selected) {
+                feedback.className = 'mt-3 p-3 rounded';
+                feedback.style.background = 'var(--accent)';
+                feedback.style.color = 'var(--accent-foreground)';
+                feedback.textContent = '⚠️ Por favor, selecione uma resposta!';
+            } else if (selected.value === '3.0') {
+                feedback.className = 'mt-3 p-3 rounded';
+                feedback.style.background = 'var(--chart-1)';
+                feedback.style.color = 'var(--primary-foreground)';
+                feedback.textContent = '🎉 Correto! A versão 3.0 é a mais utilizada atualmente da OpenAPI Specification.';
+            } else {
+                feedback.className = 'mt-3 p-3 rounded';
+                feedback.style.background = 'var(--destructive)';
+                feedback.style.color = 'var(--destructive-foreground)';
+                feedback.textContent = '❌ Incorreto. A versão correta é 3.0, que trouxe muitas melhorias sobre a 2.0.';
+            }
+            
+            feedback.classList.remove('hidden');
+        }
+
+        // Desafio final
+        function startFinalChallenge() {
+            const challengeEditor = `
+                <div class="mt-4 bg-white bg-opacity-20 p-4 rounded">
+                    <h5 class="font-medium mb-2">📝 Seu código aqui:</h5>
+                    <textarea id="final-challenge-code" class="w-full h-64 p-3 border rounded code-block text-sm font-mono" placeholder="Cole sua especificação Swagger aqui..."></textarea>
+                    <button onclick="checkFinalChallenge()" class="mt-2 bg-white text-purple-600 px-4 py-2 rounded hover:bg-gray-100 transition">
+                        ✓ Verificar Solução
+                    </button>
+                    <div id="final-challenge-feedback" class="mt-3 p-3 rounded hidden"></div>
+                </div>
+            `;
+            
+            event.target.parentElement.insertAdjacentHTML('beforeend', challengeEditor);
+            event.target.style.display = 'none';
+        }
+
+        function checkFinalChallenge() {
+            const code = document.getElementById('final-challenge-code').value;
+            const feedback = document.getElementById('final-challenge-feedback');
+            
+            // Verificações simples
+            const checks = [
+                { test: code.includes('openapi'), msg: 'OpenAPI version' },
+                { test: code.includes('products'), msg: 'Products endpoint' },
+                { test: code.includes('get') && code.includes('post'), msg: 'GET and POST methods' },
+                { test: code.includes('schema') || code.includes('Product'), msg: 'Product schema' },
+                { test: code.includes('200') && code.includes('400'), msg: 'Response codes' }
+            ];
+            
+            const passed = checks.filter(check => check.test).length;
+            const total = checks.length;
+            
+            if (passed >= 4) {
+                feedback.className = 'mt-3 p-3 rounded';
+                feedback.style.background = 'var(--chart-1)';
+                feedback.style.color = 'var(--primary-foreground)';
+                feedback.textContent = `🏆 Parabéns! Você passou no desafio final! (${passed}/${total} critérios atendidos)`;
+            } else {
+                feedback.className = 'mt-3 p-3 rounded';
+                feedback.style.background = 'var(--accent)';
+                feedback.style.color = 'var(--accent-foreground)';
+                const missing = checks.filter(check => !check.test).map(check => check.msg);
+                feedback.textContent = `💪 Bom trabalho! Tente incluir: ${missing.join(', ')} (${passed}/${total} critérios atendidos)`;
+            }
+            
+            feedback.classList.remove('hidden');
+        }
+
+        // Mostrar certificado
+        function showCertificate() {
+            const certificate = document.getElementById('certificate');
+            const date = new Date().toLocaleDateString('pt-BR');
+            document.getElementById('completion-date').textContent = date;
+            certificate.classList.remove('hidden');
+            certificate.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Toggle de tema
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (body.classList.contains('dark')) {
+                body.classList.remove('dark');
+                themeIcon.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.classList.add('dark');
+                themeIcon.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Página Swagger Learning carregada!');
+            
+            // Aplicar tema salvo ou padrão (dark)
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (savedTheme === 'dark') {
+                body.classList.add('dark');
+                themeIcon.textContent = '☀️';
+            } else {
+                body.classList.remove('dark');
+                themeIcon.textContent = '🌙';
+            }
+            
+            // Efeito de digitação no título
+            const title = document.querySelector('h1');
+            title.style.opacity = '0';
+            setTimeout(() => {
+                title.style.transition = 'opacity 1s';
+                title.style.opacity = '1';
+            }, 500);
+        });
+    </script>
+</body>
+</html>
